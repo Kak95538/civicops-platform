@@ -2,6 +2,7 @@
 package com.civicops.auth.service;
 
 import com.civicops.auth.dto.LoginRequest;
+import com.civicops.auth.dto.LoginResponse;
 import com.civicops.auth.dto.RegisterRequest;
 import com.civicops.auth.entity.User;
 import com.civicops.auth.repository.UserRepository;
@@ -15,12 +16,15 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public AuthService(
             UserRepository userRepository,
-            BCryptPasswordEncoder passwordEncoder) {
+            BCryptPasswordEncoder passwordEncoder,
+            JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Transactional
@@ -44,7 +48,7 @@ public class AuthService {
     
 
 @Transactional(readOnly = true)
-public User login(LoginRequest request) {
+public LoginResponse login(LoginRequest request) {
 
     String email = request.getEmail().trim().toLowerCase();
 
@@ -56,13 +60,26 @@ public User login(LoginRequest request) {
             request.getPassword(),
             user.getPassword()
     );
-
+    
     if (!passwordMatches) {
         throw new IllegalArgumentException(
                 "Invalid email or password");
     }
+    
+ // Generate JWT after successful authentication
+    String token = jwtService.generateToken(
+            user.getEmail(),
+            user.getRole());
 
-    return user;
+    // We'll return this token through the controller in the next step.
+
+    return new LoginResponse(
+            "Login successful",
+            token,
+            user.getId(),
+            user.getFullName(),
+            user.getEmail(),
+            user.getRole());
 }
 
 }
