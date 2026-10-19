@@ -1,6 +1,7 @@
 
 package com.civicops.auth.service;
 
+import com.civicops.auth.dto.LoginRequest;
 import com.civicops.auth.dto.RegisterRequest;
 import com.civicops.auth.entity.User;
 import com.civicops.auth.repository.UserRepository;
@@ -40,4 +41,28 @@ public class AuthService {
 
         return userRepository.save(user);
     }
+    
+
+@Transactional(readOnly = true)
+public User login(LoginRequest request) {
+
+    String email = request.getEmail().trim().toLowerCase();
+
+    User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Invalid email or password"));
+
+    boolean passwordMatches = passwordEncoder.matches(
+            request.getPassword(),
+            user.getPassword()
+    );
+
+    if (!passwordMatches) {
+        throw new IllegalArgumentException(
+                "Invalid email or password");
+    }
+
+    return user;
+}
+
 }

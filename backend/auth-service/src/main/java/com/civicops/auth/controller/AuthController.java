@@ -1,6 +1,7 @@
 
 package com.civicops.auth.controller;
 
+import com.civicops.auth.dto.LoginRequest;
 import com.civicops.auth.dto.RegisterRequest;
 import com.civicops.auth.entity.User;
 import com.civicops.auth.service.AuthService;
@@ -48,4 +49,30 @@ public class AuthController {
                     .body(Map.of("error", ex.getMessage()));
         }
     }
+    
+
+@PostMapping("/login")
+public ResponseEntity<?> login(
+        @Valid @RequestBody LoginRequest request) {
+
+    try {
+        User user = authService.login(request);
+
+        Map<String, Object> response = Map.of(
+            "message", "Login successful",
+            "id", user.getId(),
+            "fullName", user.getFullName(),
+            "email", user.getEmail(),
+            "role", user.getRole()
+        );
+
+        return ResponseEntity.ok(response);
+
+    } catch (IllegalArgumentException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", ex.getMessage()));
+    }
+}
+
 }
