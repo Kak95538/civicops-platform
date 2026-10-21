@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -23,6 +24,18 @@ public class AuthController {
 
     public AuthController(AuthService authService) {
         this.authService = authService;
+    }
+    
+    @GetMapping("/test-protected")
+    public ResponseEntity<?> testProtected(
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+            Map.of(
+                "message", "JWT authentication successful",
+                "email", authentication.getName()
+            )
+        );
     }
 
     @PostMapping("/register")
