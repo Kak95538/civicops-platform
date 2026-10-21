@@ -12,15 +12,22 @@ import com.civicops.complaint.dto.ComplaintResponse;
 import com.civicops.complaint.dto.CreateComplaintRequest;
 import com.civicops.complaint.entity.Complaint;
 import com.civicops.complaint.entity.ComplaintStatus;
+import com.civicops.complaint.entity.ComplaintStatusHistory;
 import com.civicops.complaint.repository.ComplaintRepository;
-
+import com.civicops.complaint.repository.ComplaintStatusHistoryRepository;
+import com.civicops.complaint.repository.ComplaintStatusHistoryRepository;
 @Service
 public class ComplaintService {
 
 	private final ComplaintRepository complaintRepository;
+	private final ComplaintStatusHistoryRepository statusHistoryRepository;
 
-	public ComplaintService(ComplaintRepository complaintRepository) {
-		this.complaintRepository = complaintRepository;
+	public ComplaintService(
+	        ComplaintRepository complaintRepository,
+	        ComplaintStatusHistoryRepository statusHistoryRepository) {
+
+	    this.complaintRepository = complaintRepository;
+	    this.statusHistoryRepository = statusHistoryRepository;
 	}
 
 	@Transactional
@@ -79,5 +86,36 @@ public class ComplaintService {
 
 		return toResponse(updatedComplaint);
 	}
+	
+
+@Transactional
+public ComplaintResponse updateComplaintStatus(
+        Long id,
+        ComplaintStatus newStatus,
+        String changedBy) {
+
+    Complaint complaint = complaintRepository.findById(id)
+            .orElseThrow(() ->
+                    new org.springframework.web.server.ResponseStatusException(
+                            org.springframework.http.HttpStatus.NOT_FOUND,
+                            "Complaint not found"
+                    ));
+
+    ComplaintStatus previousStatus = complaint.getStatus();
+
+    complaint.setStatus(newStatus);
+    Complaint updatedComplaint = complaintRepository.save(complaint);
+
+    ComplaintStatusHistory history = new ComplaintStatusHistory();
+    history.setComplaintId(updatedComplaint.getId());
+    history.setPreviousStatus(previousStatus);
+    history.setNewStatus(newStatus);
+    history.setChangedBy(changedBy);
+
+    statusHistoryRepository.save(history);
+
+    return toResponse(updatedComplaint);
+}
+
 
 }

@@ -17,4 +17,6 @@ public interface ComplaintRepository extends JpaRepository<Complaint, Long> {
 	        Long id,
 	        String citizenEmail
 	);
+	
+	
 }

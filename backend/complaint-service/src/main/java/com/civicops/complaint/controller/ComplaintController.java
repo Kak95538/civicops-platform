@@ -63,13 +63,23 @@ public class ComplaintController {
 		return ResponseEntity.ok(complaint);
 	}
 
-	@PatchMapping("/{id}/status")
-	public ResponseEntity<ComplaintResponse> updateComplaintStatus(@PathVariable Long id,
-			@Valid @RequestBody UpdateComplaintStatusRequest request) {
+@PatchMapping("/{id}/status")
+public ResponseEntity<ComplaintResponse> updateComplaintStatus(
+        @PathVariable Long id,
+        @Valid @RequestBody UpdateComplaintStatusRequest request,
+        Authentication authentication) {
 
-		ComplaintResponse response = complaintService.updateComplaintStatus(id, request.getStatus());
+    String changedBy = authentication.getName();
 
-		return ResponseEntity.ok(response);
-	}
+    ComplaintResponse response =
+            complaintService.updateComplaintStatus(
+                    id,
+                    request.getStatus(),
+                    changedBy
+            );
+
+    return ResponseEntity.ok(response);
+}
+
 
 }
