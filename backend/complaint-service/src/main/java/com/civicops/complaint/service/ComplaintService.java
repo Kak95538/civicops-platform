@@ -16,18 +16,18 @@ import com.civicops.complaint.entity.ComplaintStatusHistory;
 import com.civicops.complaint.repository.ComplaintRepository;
 import com.civicops.complaint.repository.ComplaintStatusHistoryRepository;
 import com.civicops.complaint.repository.ComplaintStatusHistoryRepository;
+
 @Service
 public class ComplaintService {
 
 	private final ComplaintRepository complaintRepository;
 	private final ComplaintStatusHistoryRepository statusHistoryRepository;
 
-	public ComplaintService(
-	        ComplaintRepository complaintRepository,
-	        ComplaintStatusHistoryRepository statusHistoryRepository) {
+	public ComplaintService(ComplaintRepository complaintRepository,
+			ComplaintStatusHistoryRepository statusHistoryRepository) {
 
-	    this.complaintRepository = complaintRepository;
-	    this.statusHistoryRepository = statusHistoryRepository;
+		this.complaintRepository = complaintRepository;
+		this.statusHistoryRepository = statusHistoryRepository;
 	}
 
 	@Transactional
@@ -86,36 +86,42 @@ public class ComplaintService {
 
 		return toResponse(updatedComplaint);
 	}
-	
 
-@Transactional
-public ComplaintResponse updateComplaintStatus(
-        Long id,
-        ComplaintStatus newStatus,
-        String changedBy) {
+	@Transactional
+	public ComplaintResponse updateComplaintStatus(Long id, ComplaintStatus newStatus, String changedBy) {
 
-    Complaint complaint = complaintRepository.findById(id)
-            .orElseThrow(() ->
-                    new org.springframework.web.server.ResponseStatusException(
-                            org.springframework.http.HttpStatus.NOT_FOUND,
-                            "Complaint not found"
-                    ));
+		Complaint complaint = complaintRepository.findById(id)
+				.orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+						org.springframework.http.HttpStatus.NOT_FOUND, "Complaint not found"));
 
-    ComplaintStatus previousStatus = complaint.getStatus();
+		ComplaintStatus previousStatus = complaint.getStatus();
 
-    complaint.setStatus(newStatus);
-    Complaint updatedComplaint = complaintRepository.save(complaint);
+		complaint.setStatus(newStatus);
+		Complaint updatedComplaint = complaintRepository.save(complaint);
 
-    ComplaintStatusHistory history = new ComplaintStatusHistory();
-    history.setComplaintId(updatedComplaint.getId());
-    history.setPreviousStatus(previousStatus);
-    history.setNewStatus(newStatus);
-    history.setChangedBy(changedBy);
+		ComplaintStatusHistory history = new ComplaintStatusHistory();
+		history.setComplaintId(updatedComplaint.getId());
+		history.setPreviousStatus(previousStatus);
+		history.setNewStatus(newStatus);
+		history.setChangedBy(changedBy);
 
-    statusHistoryRepository.save(history);
+		statusHistoryRepository.save(history);
 
-    return toResponse(updatedComplaint);
-}
+		return toResponse(updatedComplaint);
+	}
 
+	@Transactional
+	public ComplaintResponse assignComplaintToOfficer(Long complaintId, String officerEmail) {
+
+		Complaint complaint = complaintRepository.findById(complaintId)
+				.orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+						org.springframework.http.HttpStatus.NOT_FOUND, "Complaint not found"));
+
+		complaint.setAssignedOfficerEmail(officerEmail.trim().toLowerCase());
+
+		Complaint updatedComplaint = complaintRepository.save(complaint);
+
+		return toResponse(updatedComplaint);
+	}
 
 }

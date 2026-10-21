@@ -66,7 +66,10 @@ public class SecurityConfig {
 		http.csrf(csrf -> csrf.disable())
 
 				.authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/health").permitAll()
-
+						.requestMatchers(
+							    org.springframework.http.HttpMethod.PATCH,
+							    "/api/complaints/*/assign"
+							).hasAnyRole("OFFICER", "ADMIN")
 						// Only officers and admins can update complaint status.
 						.requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/complaints/*/status")
 						.hasAnyRole("OFFICER", "ADMIN")

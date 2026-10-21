@@ -42,8 +42,11 @@ public class Complaint {
 
     @Column(nullable = false, length = 255)
     private String citizenEmail;
+    
+    @Column(length = 255)
+    private String assignedOfficerEmail;
 
-    public Complaint() {
+	public Complaint() {
     }
 
     @PrePersist
@@ -114,4 +117,16 @@ public class Complaint {
     public void setCitizenEmail(String citizenEmail) {
         this.citizenEmail = citizenEmail;
     }
+    
+    public String getAssignedOfficerEmail() {
+		return assignedOfficerEmail;
+	}
+
+	public void setAssignedOfficerEmail(String assignedOfficerEmail) {
+		this.assignedOfficerEmail = assignedOfficerEmail;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
 }

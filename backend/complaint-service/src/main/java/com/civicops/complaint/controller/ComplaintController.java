@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.civicops.complaint.dto.AssignComplaintRequest;
 import com.civicops.complaint.dto.ComplaintResponse;
 import com.civicops.complaint.dto.CreateComplaintRequest;
 import com.civicops.complaint.dto.UpdateComplaintStatusRequest;
@@ -63,23 +64,24 @@ public class ComplaintController {
 		return ResponseEntity.ok(complaint);
 	}
 
-@PatchMapping("/{id}/status")
-public ResponseEntity<ComplaintResponse> updateComplaintStatus(
-        @PathVariable Long id,
-        @Valid @RequestBody UpdateComplaintStatusRequest request,
-        Authentication authentication) {
+	@PatchMapping("/{id}/status")
+	public ResponseEntity<ComplaintResponse> updateComplaintStatus(@PathVariable Long id,
+			@Valid @RequestBody UpdateComplaintStatusRequest request, Authentication authentication) {
 
-    String changedBy = authentication.getName();
+		String changedBy = authentication.getName();
 
-    ComplaintResponse response =
-            complaintService.updateComplaintStatus(
-                    id,
-                    request.getStatus(),
-                    changedBy
-            );
+		ComplaintResponse response = complaintService.updateComplaintStatus(id, request.getStatus(), changedBy);
 
-    return ResponseEntity.ok(response);
-}
+		return ResponseEntity.ok(response);
+	}
 
+	@PatchMapping("/{id}/assign")
+	public ResponseEntity<ComplaintResponse> assignComplaintToOfficer(@PathVariable Long id,
+			@Valid @RequestBody AssignComplaintRequest request) {
+
+		ComplaintResponse response = complaintService.assignComplaintToOfficer(id, request.getOfficerEmail());
+
+		return ResponseEntity.ok(response);
+	}
 
 }
