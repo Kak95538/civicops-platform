@@ -1,4 +1,5 @@
-
+import { Routes, Route } from 'react-router-dom';
+import Login from './pages/Login.jsx';
 import './App.css';
 
 const services = [
@@ -40,7 +41,7 @@ const workflow = [
   },
 ];
 
-function App() {
+function Home() {
   return (
     <div className="app">
       <header className="navbar">
@@ -55,9 +56,15 @@ function App() {
           <a href="#how-it-works">How it works</a>
         </nav>
 
-        <a className="nav-button" href="#services">
-          Explore services <span>↗</span>
+       <div className="nav-actions">
+        <a className="nav-button" href="/login">
+          Login
         </a>
+
+        <a className="nav-button" href="#services">
+            Explore services <span>↗</span>
+        </a>
+        </div>
       </header>
 
       <main>
@@ -208,4 +215,15 @@ function App() {
   );
 }
 
+
+function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+    </Routes>
+  );
+}
+
 export default App;
+
