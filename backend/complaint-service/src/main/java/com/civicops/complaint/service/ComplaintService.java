@@ -13,6 +13,7 @@ import com.civicops.complaint.dto.CreateComplaintRequest;
 import com.civicops.complaint.entity.Complaint;
 import com.civicops.complaint.entity.ComplaintStatus;
 import com.civicops.complaint.entity.ComplaintStatusHistory;
+import com.civicops.complaint.event.ComplaintEventPublisher;
 import com.civicops.complaint.repository.ComplaintRepository;
 import com.civicops.complaint.repository.ComplaintStatusHistoryRepository;
 import com.civicops.complaint.repository.ComplaintStatusHistoryRepository;
@@ -22,12 +23,14 @@ public class ComplaintService {
 
 	private final ComplaintRepository complaintRepository;
 	private final ComplaintStatusHistoryRepository statusHistoryRepository;
+	private final ComplaintEventPublisher complaintEventPublisher;
 
 	public ComplaintService(ComplaintRepository complaintRepository,
-			ComplaintStatusHistoryRepository statusHistoryRepository) {
+			ComplaintStatusHistoryRepository statusHistoryRepository, ComplaintEventPublisher complaintEventPublisher) {
 
 		this.complaintRepository = complaintRepository;
 		this.statusHistoryRepository = statusHistoryRepository;
+		this.complaintEventPublisher = complaintEventPublisher;
 	}
 
 	@Transactional
@@ -45,6 +48,17 @@ public class ComplaintService {
 		complaint.setStatus(ComplaintStatus.SUBMITTED);
 
 		Complaint savedComplaint = complaintRepository.save(complaint);
+		
+		String eventMessage = String.format(
+		        "{\"complaintId\":%d,\"title\":\"%s\",\"category\":\"%s\",\"status\":\"%s\",\"citizenEmail\":\"%s\"}",
+		        savedComplaint.getId(),
+		        savedComplaint.getTitle(),
+		        savedComplaint.getCategory(),
+		        savedComplaint.getStatus(),
+		        savedComplaint.getCitizenEmail()
+		);
+
+		complaintEventPublisher.publishComplaintCreated(eventMessage);
 
 		return toResponse(savedComplaint);
 	}

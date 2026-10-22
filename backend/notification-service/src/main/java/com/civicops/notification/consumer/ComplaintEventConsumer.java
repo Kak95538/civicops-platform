@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class ComplaintEventConsumer {
 
     @KafkaListener(
-        topics = "civicops-notification-test",
+    	topics = "complaint-created",
         groupId = "civicops-notification-group"
     )
     public void consume(String message) {
